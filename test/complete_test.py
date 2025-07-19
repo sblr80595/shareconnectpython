@@ -6,7 +6,7 @@ from SharekhanApi.sharekhanConnect import SharekhanConnect
 def load_config():
     """Load configuration from config.py if it exists"""
     try:
-        import test.config as config
+        import config as config
         return config
     except ImportError:
         print("❌ config.py not found. Please copy config_template.py to config.py and update credentials.")
@@ -15,7 +15,7 @@ def load_config():
 def test_automated_authentication(config):
     """Test automated authentication with TOTP"""
     try:
-        from automated_auth import automated_sharekhan_login
+        from SharekhanApi.automated_auth import automated_sharekhan_login
         
         print("🔄 Attempting automated authentication...")
         

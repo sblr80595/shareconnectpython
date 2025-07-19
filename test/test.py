@@ -1,28 +1,84 @@
 from SharekhanApi.sharekhanConnect import SharekhanConnect
 
-api_key = "Your Api Key"
-login = SharekhanConnect(api_key)
-vendor_key = ""         # vendor key for vendor login otherwise keep it null
-version_id = ""         # version id= 1005 or 1006 otherwise keep it null
-state=12345
-url = login.login_url(vendor_key, version_id)
-print(url)
+# === OPTION 1: Manual authentication (current method) ===
+def manual_authentication():
+    api_key = "LOicbnwvRSVTxk3wtZqvD1MSdbFFrxya"
+    login = SharekhanConnect(api_key)
+    vendor_key = ""         # vendor key for vendor login otherwise keep it null
+    version_id = ""         # version id= 1005 or 1006 otherwise keep it null
+    state=12345
+    url = login.login_url(vendor_key, version_id)
+    print(url)
 
-request_token="Your request token value after login"
-secret_key="Your Secret key"
+    # IMPORTANT: After visiting the above URL and logging in, you will get a request_token
+    # Replace the placeholder below with the actual request_token received from Sharekhan API
+    request_token="xbM4qtYjAYBdWbF5rtR3APSTPQInP42HnFhHxeTMjU0T+I1QOMFQaUCWsbPBqJh8WB4kpend3lM="  # Replace this with actual token
+    secret_key="PCbEDV4QGR4oE1nlh4TLpo1ZWo8LxdRX"
 
-"""Use generate session method when you are passing version id """
-session=login.generate_session(request_token,secret_key)
-# Generating access token for version id and pass parameters as it is passed below
-access_token=login.get_access_token(api_key,session,state,versionId=version_id)
+    # NOTE: The following lines will only work with a real request_token from Sharekhan API
+    # For testing purposes, we'll skip the session generation and use the hardcoded access_token below
 
-"""Use generate session without version id method when you are not passing version id """
-sessionwithoutvesionId=login.generate_session_without_versionId(request_token,secret_key)
-# Generating access token for without version id
-access_token=login.get_access_token(api_key,sessionwithoutvesionId,state)
+    # """Use generate session method when you are passing version id """
+    # session=login.generate_session(request_token,secret_key)
+    # # Generating access token for version id and pass parameters as it is passed below
+    # access_token=login.get_access_token(api_key,session,state,versionId=version_id)
 
-print(access_token)
-access_token = "Your access token value"
+    # """Use generate session without version id method when you are not passing version id """
+    sessionwithoutvesionId=login.generate_session_without_versionId(request_token,secret_key)
+    # # Generating access token for without version id
+    access_token=login.get_access_token(api_key,sessionwithoutvesionId,state)
+
+    print("access token:", access_token)
+
+    # Using hardcoded access_token for testing other API functions
+    access_token = "eyJ0eXAiOiJzZWMiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI4Z0dNS0FKNFJJbFlNdEd5SU8zOHhlcThkRDVPQVNUTFZlK3poRXFSQTd1ZXVza3laRm8xeVF5dnJkcGdYb0MwU2lMT3dLREtMbi9henh0VXNqOXhUOGZaMWZzWWp0eG83SXU1OW5YUFhsa2l0cGRXOTdsTlJ4TGNWOVFDMzVHMGN5SlNlaWltQ2VDVWlNOVNNQXlCd1pNWUtzTjFiaDRhcFd0ZDg5L0lJWlU9IiwiaWF0IjoxNzUyOTExMTI5LCJleHAiOjE3NTI5NDk3OTl9.B1dlH4udZHcVTQhvWL3BfksF1sXd1KNm0l1P_EREJmQ"
+    return api_key, access_token
+
+# === OPTION 2: Automated authentication with TOTP ===
+def automated_authentication():
+    """
+    Automated authentication using TOTP
+    UNCOMMENT AND CONFIGURE THIS SECTION TO USE AUTOMATED AUTH
+    """
+    # from automated_auth import automated_sharekhan_login
+    
+    # # Your credentials
+    # api_key = "LOicbnwvRSVTxk3wtZqvD1MSdbFFrxya"
+    # secret_key = "PCbEDV4QGR4oE1nlh4TLpo1ZWo8LxdRX"
+    # username = "YOUR_USERNAME"
+    # password = "YOUR_PASSWORD"  
+    # totp_secret = "YOUR_TOTP_SECRET"
+    
+    # # Get access token automatically
+    # access_token = automated_sharekhan_login(
+    #     api_key=api_key,
+    #     secret_key=secret_key,
+    #     username=username,
+    #     password=password,
+    #     totp_secret=totp_secret
+    # )
+    
+    # if access_token:
+    #     print("✅ Automated authentication successful!")
+    #     return api_key, access_token
+    # else:
+    #     print("❌ Automated authentication failed, falling back to manual")
+    #     return manual_authentication()
+    
+    # For now, use manual authentication
+    return manual_authentication()
+
+# Choose authentication method
+print("=== Sharekhan API Test ===")
+print("Choose authentication method:")
+print("1. Manual authentication (current)")
+print("2. Automated authentication with TOTP (configure automated_auth.py first)")
+
+# For now, using manual authentication
+# To use automated auth, uncomment the automated_authentication() call and configure credentials
+api_key, access_token = manual_authentication()
+# api_key, access_token = automated_authentication()
+
 sharekhan = SharekhanConnect(api_key=api_key,access_token=access_token)
 print(sharekhan.requestHeaders())       # for printing request headers
 
@@ -172,7 +228,13 @@ sws = SharekhanWebSocket(access_token)
 
 
 def on_data(wsapp, message):
-    print("Ticks: {}".format(message))
+    # Filter out heartbeat messages to only show actual market data
+    if message == "heartbeat" or message == "pong":
+        print("🔄 Keepalive:", message)  # Optional: show heartbeat status
+        return
+    
+    # Show actual market data/ticks
+    print("📊 Market Data: {}".format(message))
 
 
 def on_open(wsapp):

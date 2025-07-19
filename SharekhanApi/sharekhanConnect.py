@@ -5,7 +5,7 @@ from requests import get
 import json
 import logging
 
-import SharekhanApi.sharekhanExceptions as ex
+import SharekhanApi.sharekhanExceptionssharekhanExceptions as ex
 
 log = logging.getLogger(__name__)
 
@@ -276,7 +276,7 @@ class SharekhanConnect(object):
 
             nonce = b'\x00' * 16
             skey_spec = AES.new(raw, AES.MODE_GCM, nonce=nonce)
-            encrypted_data = base64.urlsafe_b64decode(encrypted_data)
+            encrypted_data = base64UrlDecode(encrypted_data.encode())
             ciphertext = encrypted_data[:-16]
             received_mac_tag = encrypted_data[-16:]
             decrypted = skey_spec.decrypt_and_verify(ciphertext, received_mac_tag)
